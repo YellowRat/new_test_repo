@@ -1,3 +1,98 @@
 asfaf
+
+IDENTIFICATION DIVISION.
+       PROGRAM-ID. PAYCALC.
+       AUTHOR. GEMINI.
+
+       ENVIRONMENT DIVISION.
+       INPUT-OUTPUT SECTION.
+       FILE-CONTROL.
+           SELECT EMPLOYEE-FILE ASSIGN TO 'EMPLOYEE.DAT'
+               ORGANIZATION IS LINE SEQUENTIAL.
+           SELECT REPORT-FILE ASSIGN TO 'PAYROLL.RPT'
+               ORGANIZATION IS LINE SEQUENTIAL.
+
+       DATA DIVISION.
+       FILE SECTION.
+       FD  EMPLOYEE-FILE.
+       01  EMPLOYEE-RECORD.
+           05 EMP-ID           PIC X(5).
+           05 EMP-NAME         PIC X(20).
+           05 EMP-HOURS        PIC 9(3)V99.
+           05 EMP-RATE         PIC 9(3)V99.
+
+       FD  REPORT-FILE.
+       01  REPORT-RECORD       PIC X(80).
+
+       WORKING-STORAGE SECTION.
+       01  WS-WORK-AREAS.
+           05 WS-EOF-FLAG      PIC X(1) VALUE 'N'.
+              88 END-OF-FILE   VALUE 'Y'.
+           05 WS-GROSS-PAY     PIC 9(5)V99.
+
+       01  WS-REPORT-LINE-OUT.
+           05 FILLER           PIC X(1) VALUE SPACES.
+           05 OUT-ID           PIC X(5).
+           05 FILLER           PIC X(3) VALUE SPACES.
+           05 OUT-NAME         PIC X(20).
+           05 FILLER           PIC X(3) VALUE SPACES.
+           05 OUT-HOURS        PIC Z(3).99.
+           05 FILLER           PIC X(3) VALUE SPACES.
+           05 OUT-RATE         PIC Z(3).99.
+           05 FILLER           PIC X(3) VALUE SPACES.
+           05 OUT-PAY          PIC $Z(4).99.
+
+       01  WS-HEADING-LINE.
+           05 FILLER           PIC X(8)  VALUE 'EMP ID'.
+           05 FILLER           PIC X(19) VALUE SPACES.
+           05 FILLER           PIC X(4)  VALUE 'NAME'.
+           05 FILLER           PIC X(15) VALUE SPACES.
+           05 FILLER           PIC X(5)  VALUE 'HOURS'.
+           05 FILLER           PIC X(6)  VALUE SPACES.
+           05 FILLER           PIC X(4)  VALUE 'RATE'.
+           05 FILLER           PIC X(7)  VALUE SPACES.
+           05 FILLER           PIC X(8)  VALUE 'GROSS PAY'.
+
+
+       PROCEDURE DIVISION.
+       000-MAIN-LOGIC.
+           PERFORM 100-INITIALIZE-PROGRAM
+           PERFORM 200-PROCESS-RECORDS
+               UNTIL END-OF-FILE
+           PERFORM 300-TERMINATE-PROGRAM
+           STOP RUN.
+
+       100-INITIALIZE-PROGRAM.
+           OPEN INPUT EMPLOYEE-FILE
+                OUTPUT REPORT-FILE
+           WRITE REPORT-RECORD FROM WS-HEADING-LINE
+           PERFORM 210-READ-RECORD.
+
+       200-PROCESS-RECORDS.
+           PERFORM 220-CALCULATE-PAY
+           PERFORM 230-WRITE-REPORT-LINE
+           PERFORM 210-READ-RECORD.
+
+       210-READ-RECORD.
+           READ EMPLOYEE-FILE
+               AT END SET END-OF-FILE TO TRUE
+           END-READ.
+
+       220-CALCULATE-PAY.
+           COMPUTE WS-GROSS-PAY = EMP-HOURS * EMP-RATE.
+
+       230-WRITE-REPORT-LINE.
+           MOVE EMP-ID TO OUT-ID
+           MOVE EMP-NAME TO OUT-NAME
+           MOVE EMP-HOURS TO OUT-HOURS
+           MOVE EMP-RATE TO OUT-RATE
+           MOVE WS-GROSS-PAY TO OUT-PAY
+           MOVE WS-REPORT-LINE-OUT TO REPORT-RECORD
+           WRITE REPORT-RECORD.
+
+       300-TERMINATE-PROGRAM.
+           CLOSE EMPLOYEE-FILE
+                 REPORT-FILE
+           DISPLAY '*** Processing Complete. Report created in PAYROLL.RPT ***'.
 fadfewsf
 dsafdsf
